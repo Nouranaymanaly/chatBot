@@ -1,12 +1,13 @@
-
 let logo;
-
+let myVoice;
 
 let inp;
 let sendBtn;
 let navigateBtn;
 let HumanText= "";
 let botText="";
+let speechRec;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background('#000080');
@@ -24,22 +25,43 @@ function setup() {
     inp.attribute('placeholder', "please enter your question");
     inp.size(windowWidth-250);
     inp.input(HumanInputEvent);
+    inp.addClass("form-control")
     
     //send button
     sendBtn=createButton('send');
     sendBtn.position(width-150, height-300);
     sendBtn.size(100);
     sendBtn.mousePressed(submitQuestion);
+    sendBtn.addClass("btn")
+    sendBtn.addClass("btn-info")
     
     //navigate button
-    navigateBtn=createButton('Use Sound');
-    navigateBtn.position(width-150, 350);
+    navigateBtn=createButton('Use Speech');
+    navigateBtn.position(width-150, 300);
     navigateBtn.size(100);
     navigateBtn.mousePressed(navigate);
+    navigateBtn.addClass("btn")
+    navigateBtn.addClass("btn-success")
+    
+    myVoice = new p5.Speech()
+    myVoice.speak("speech activated");
+    
+    speechRec = new p5.SpeechRec('en-us', gotSpeech)
+    
+    speechRec.start(true, false);
 }
 
-function HumanInputEvent(){
-    //console.log("this is the user input: "+ this.value());
+function gotSpeech(){
+    if(speechRec.resultValue == true){
+        console.log(speechRec.resultString);
+        myVoice.speak(speechRec.resultString);
+        HumanText = speechRec.resultString;
+    }
+}
+
+function HumanInputEvent()
+{
+    console.log("this is the user input: "+ this.value());
 }
 
 function submitQuestion(){
