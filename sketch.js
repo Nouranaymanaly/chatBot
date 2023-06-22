@@ -5,6 +5,7 @@ let BotText;
 let inp;
 let sendBtn;
 let navigateBtn;
+let navigateTextBtn;
 let speachBtn;
 let talkBtn;
 let mode=0;
@@ -14,61 +15,55 @@ let speechRec;
 function setup() {
     createCanvas(windowWidth, windowHeight);
     
-    background('#000080');
+    background(50,50,50);
     
     //RiveScript
     bot = new RiveScript(); //load library
     
     loadBot(); //call function to load the rivescript bot
+    logo = loadImage('ExploreBotLogo.png');
+    
 
-
-    imageMode(CENTER);             //adjust image mode
-    //Using a call back function to load first image
-    loadImage('EUE-Logo.png', logo => {
-    image(logo, width / 2, height / 2 - 100, 500, 150);
-    });
-    
-     imageMode(CENTER); //adjust image mode
-        //Using a call back function to load first image
-            loadImage('EUE-Logo.png', logo => {
-                image(logo, width / 2, height / 2 - 100, 500, 150);
-            });
-    
-    
-    //draw input field
-    //textSize(30);
-    //text("Enter Here: ",50, height-320)
     inp = createInput('');
     inp.attribute('placeholder',"Please enter your question here!")
-    inp.position(50, height-300);
+    inp.position(50, height-100);
     inp.size(windowWidth-250);
     inp.input(HumanInputEvent);
 
     //draw button
-    sendBtn = createButton('Send');
-    sendBtn.position(width-150, height-300);
+    sendBtn = createButton('Send text');
+    sendBtn.position(width-150, height-100);
     sendBtn.size(100);
     sendBtn.mousePressed(submitQuestion);
-
+    sendBtn.addClass('btn btn-dark'); 
     
     //navigation button
     navigateBtn = createButton('Use Sound');
-    navigateBtn.position(width-150, 300);
+    navigateBtn.position(width-150, height-200);
     navigateBtn.size(100);
     navigateBtn.mousePressed(navigate);
+    navigateBtn.addClass('btn btn-dark');
+    
+    navigateTextBtn = createButton('Use text');
+    navigateTextBtn.position(width-150, height-200);
+    navigateTextBtn.size(100);
+    navigateTextBtn.mousePressed(navigate);
+    navigateTextBtn.addClass('btn btn-dark');
     
     
     //speak button
-    speachBtn = createButton('Speak');
-    speachBtn.position(width-150, 400);
+    speachBtn = createButton('Send');
+    speachBtn.position(width-150, height-100);
     speachBtn.size(100);
     speachBtn.mousePressed(gotSpeech);
+    speachBtn.addClass('btn btn-dark');
     
     //talk button
     talkBtn = createButton('Talk');
-    talkBtn.position(width-150, 350);
+    talkBtn.position(width-150, height-150);
     talkBtn.size(100);
     talkBtn.mousePressed(talk);
+    talkBtn.addClass('btn btn-dark');
     
     
     //call variable and set up library here(or in a function)
@@ -80,7 +75,7 @@ function setup() {
         let interimResults = false;
         speechRec.start(continuous, interimResults);
     
-    gotSpeech();
+//    gotSpeech();
     
     //my Voice
     myVoice = new p5.Speech(); // new P5.Speech object
@@ -113,7 +108,12 @@ function navigate(){
     }
     
 }
-
+function keyPressed(){
+    if (keyCode == 13) 
+    {
+    submitQuestion();
+    }
+}
 function submitQuestion(){
     
     setTimeout( () =>{
@@ -129,7 +129,8 @@ function gotSpeech(){
     console.log("gotSpeech")
     if (speechRec.resultValue) {
         let said = speechRec.resultString;
-    
+        getResponse();
+        HumanText = said;
         // display user input
         console.log(said);
     
@@ -138,6 +139,7 @@ function gotSpeech(){
 
 function talk(){
          setTimeout( () =>{
+//             getResponse();
              myVoice.speak(BotText);
         }, 2000);
    
@@ -156,23 +158,42 @@ async function getResponse(){
     BotText = response;
     
 }
-
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+    background(50, 50, 50);
+  inp.position(50, windowHeight - 100);
+  inp.size(windowWidth - 250);
+  sendBtn.position(windowWidth - 150, windowHeight - 100);
+  navigateBtn.position(windowWidth - 150, windowHeight - 200);
+  navigateTextBtn.position(windowWidth - 150, windowHeight - 200);
+  speachBtn.position(windowWidth - 150, windowHeight - 100);
+  talkBtn.position(windowWidth - 150, windowHeight - 150);
+}
 
 function draw() {
+    windowResized();
+    image (logo, (windowWidth / 2)-200, -100, 400, 400);
     if(mode == 0 ){ 
         inp.show();
-        sendBtn.show();  
+        sendBtn.show();
+        navigateBtn.show();
         
         speachBtn.hide();
+        talkBtn.hide();
+        navigateTextBtn.hide();
+        
         
 //        speechRec.pause();
         
     }
     else if(mode == 1){
         inp.hide();
-        sendBtn.hide();      
+        sendBtn.hide(); 
+        navigateBtn.hide();
         
         speachBtn.show();
+        talkBtn.show();
+        navigateTextBtn.show();
         
         if (speechRec.resultValue) {
             let said = speechRec.resultString;
@@ -188,10 +209,12 @@ function draw() {
     
     //draw an empty textbox
     let rectX = width / 2;
-    let rectY = height - 125;
-    fill("white");
+    let rectY = 350;
+    fill(255,125,0);
     rectMode(CENTER);
-    rect(rectX, rectY, windowWidth - 50, 200, 20);
+    rect(rectX, rectY-100, windowWidth - 50, 50, 20);
+    fill("white");
+    rect(rectX, rectY-25, windowWidth - 50, 50, 20);
     
     //Human Text
     textSize(15);
@@ -200,7 +223,7 @@ function draw() {
     if(HumanText == undefined)
         HumanText = "";
     
-    text("> Human Text: "+HumanText,(width/15) ,height-200); //draw Human Text within a box
+    text(" You: "+HumanText,(width/15),rectY-100); //draw Human Text within a box
     
     
     if(BotText == undefined)
@@ -216,7 +239,7 @@ function draw() {
     textAlign(RIGHT);
     strokeWeight(1);
     stroke(20);
-    text(BotText+" : Bot Respond <", rectX - padding, rectY + (3*padding), windowWidth - 75, 190); //draw Bot Text within a box
+    text(BotText+" : ExploreBot ", rectX - padding, rectY + (3*padding), windowWidth - 75, 190); //draw Bot Text within a box
     
     
 
