@@ -1,247 +1,340 @@
-
 let logo;
-let HumanText;
-let BotText;
+let chatBubbles = []; // Array to store chat bubbles
 let inp;
 let sendBtn;
 let navigateBtn;
 let navigateTextBtn;
 let speachBtn;
 let talkBtn;
-let mode=0;
-var myVoice;
-
+let mode = 0;
+let myVoice;
 let speechRec;
-function setup() {
-    createCanvas(windowWidth, windowHeight);
-    
-    background(50,50,50);
-    
-    //RiveScript
-    bot = new RiveScript(); //load library
-    
-    loadBot(); //call function to load the rivescript bot
-    logo = loadImage('ExploreBotLogo.png');
-    
+let question;
+let BotText;
+let modeListen=0;
 
+function setup() 
+{
+    //creating a canva that fits the wiindow and increase it's height based on the chat length
+    createCanvas(windowWidth, (windowHeight+chatBubbles.length*120)-100);
+    
+    background(50, 50, 50);//set background to gray
+    
+    // RiveScript implementation
+    bot = new RiveScript(); // load library
+    loadBot(); // call function to load the RiveScript bot
+    
+    logo = loadImage('ExploreBotLogo.png'); // add the logo
+    
+    //creating input feild
     inp = createInput('');
-    inp.attribute('placeholder',"Please enter your question here!")
-    inp.position(50, height-100);
-    inp.size(windowWidth-250);
+    inp.attribute('placeholder', "Please enter your question here!")
+    inp.position(50,( windowHeight +chatBubbles.length*120)- 400);
+    inp.size(windowWidth - 250);
     inp.input(HumanInputEvent);
 
-    //draw button
+    // Draw button to submit questions
     sendBtn = createButton('Send text');
-    sendBtn.position(width-150, height-100);
+    sendBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 400);
     sendBtn.size(100);
     sendBtn.mousePressed(submitQuestion);
-    sendBtn.addClass('btn btn-dark'); 
-    
-    //navigation button
-    navigateBtn = createButton('Use Sound');
-    navigateBtn.position(width-150, height-200);
+    sendBtn.addClass('btn btn-dark');
+
+    // draw Navigation button to switch from text to sound
+    navigateBtn = createButton('Use sound');
+    navigateBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 350);
     navigateBtn.size(100);
     navigateBtn.mousePressed(navigate);
     navigateBtn.addClass('btn btn-dark');
-    
+
+    // draw Navigation button to switch from sound to text
     navigateTextBtn = createButton('Use text');
-    navigateTextBtn.position(width-150, height-200);
+    navigateTextBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 350);
     navigateTextBtn.size(100);
     navigateTextBtn.mousePressed(navigate);
     navigateTextBtn.addClass('btn btn-dark');
-    
-    
-    //speak button
+
+    // Speak button to get response (stops listening when clicked)
     speachBtn = createButton('Send');
-    speachBtn.position(width-150, height-100);
+    speachBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 400);
     speachBtn.size(100);
     speachBtn.mousePressed(gotSpeech);
+    speachBtn.mousePressed(navigateListen)
     speachBtn.addClass('btn btn-dark');
     
-    //talk button
+    //Listen button to start listening again
+    listenBtn = createButton('Listen');
+    listenBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 400);
+    listenBtn.size(100);
+    listenBtn.mousePressed(navigateListen)
+    listenBtn.addClass('btn btn-dark');
+
+    // Talk button to let the bot talk
     talkBtn = createButton('Talk');
-    talkBtn.position(width-150, height-150);
+    talkBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 300);
     talkBtn.size(100);
     talkBtn.mousePressed(talk);
     talkBtn.addClass('btn btn-dark');
     
-    
-    //call variable and set up library here(or in a function)
-    //don't forget to look for a call back function
-    speechRec = new p5.SpeechRec('en-us', gotSpeech);
-    
-     //configure speech rec mode
-        let continuous = true;
-        let interimResults = false;
-        speechRec.start(continuous, interimResults);
-    
-//    gotSpeech();
-    
-    //my Voice
-    myVoice = new p5.Speech(); // new P5.Speech object
-     myVoice.speak("say something");
-    
+    speechRec = new p5.SpeechRec('en-us', gotSpeech); //record speech
 
-    
+    // Configure speech rec mode
+    let continuous = true;
+    let interimResults = false;
+    speechRec.start(continuous, interimResults);
+
+    // My Voice
+    myVoice = new p5.Speech(); // New P5.Speech object
+    myVoice.speak("say something");
 }
 
-
-async function loadBot() {
- 
-  await bot.loadFile('botbrain.rive.txt'); // wait for promise to resolve then loadfile
- 
+async function loadBot() 
+{
+  await bot.loadFile('botbrain.rive.txt'); // Wait for promise to resolve then load file
 }
 
-function HumanInputEvent() {
-  console.log('you are typing: ', this.value());
-//    HumanText = this.value();
+function HumanInputEvent() 
+{
+    console.log('You are typing: ', this.value());
 }
 
-function navigate(){
+function navigate() 
+{
     console.log("navigate");
-    console.log("mode: "+mode);
-    if(mode == 0){
-        mode =1;
-    }
-    else{
+    console.log("mode: " + mode);
+    if (mode == 0) 
+    {
+        mode = 1;
+    } 
+    else 
+    {
         mode = 0;
     }
-    
 }
-function keyPressed(){
-    if (keyCode == 13) 
+ function navigateListen() 
+{
+    console.log("navigate Listen");
+    console.log("modeListen: " + modeListen);
+    if (modeListen == 0) 
     {
-    submitQuestion();
+        modeListen = 1;
+    } 
+    else 
+    {
+        modeListen = 0;
     }
 }
-function submitQuestion(){
-    
-    setTimeout( () =>{
-    console.log("inp.value: "+inp.value());
-    console.log("Mouse is pressed!");
-    HumanText = inp.value();
-    getResponse();
-    }, 2000);
-  
+
+function keyPressed() 
+{
+    if (keyCode == 13) 
+    {
+        submitQuestion();
+    }
 }
 
-function gotSpeech(){
-    console.log("gotSpeech")
-    if (speechRec.resultValue) {
+function submitQuestion() 
+{
+        console.log("inp.value: " + inp.value());
+        console.log("Mouse is pressed!");
+        question = inp.value();
+        // Clear input field
+        inp.value(''); 
+        getResponse(question);
+}
+
+function gotSpeech() 
+{
+    console.log("gotSpeech");
+    if (speechRec.resultValue && mode == 1 && modeListen == 0) 
+    {
         let said = speechRec.resultString;
-        getResponse();
-        HumanText = said;
-        // display user input
-        console.log(said);
-    
-        }
+        getResponse(said);
+        question = said;
+    }
+      
+    // Display user input
+    console.log(said);
 }
 
-function talk(){
-         setTimeout( () =>{
-//             getResponse();
-             myVoice.speak(BotText);
-        }, 2000);
-   
+function talk() 
+{
+    myVoice.speak(BotText);
 }
 
-async function getResponse(){
-    
-    //--------------------bot response----------------------     
-    //sort replies before running the bot
+// Bot response
+async function getResponse(question) 
+{
+    // Sort replies before running the bot
     bot.sortReplies();
-    //wait for the promise to be returned(?)before loading the reply
-    let response = await bot.reply('local-user', HumanText);
-    //display response
+    // Wait for the question to be returned before loading the reply
+    let response = await bot.reply('local-user', question);
+    BotText=response;
+    // Display response
     console.log(response);
-    
-    BotText = response;
-    
-}
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-    background(50, 50, 50);
-  inp.position(50, windowHeight - 100);
-  inp.size(windowWidth - 250);
-  sendBtn.position(windowWidth - 150, windowHeight - 100);
-  navigateBtn.position(windowWidth - 150, windowHeight - 200);
-  navigateTextBtn.position(windowWidth - 150, windowHeight - 200);
-  speachBtn.position(windowWidth - 150, windowHeight - 100);
-  talkBtn.position(windowWidth - 150, windowHeight - 150);
+    // Create new chat bubble
+    let chatBubble = 
+        {
+            question: question,
+            answer: response
+        };
+    chatBubbles.push(chatBubble);
 }
 
-function draw() {
+//fix resizing the window
+function windowResized() {
+  resizeCanvas(windowWidth,
+               (windowHeight+
+                chatBubbles.length*120));
+  background(50, 50, 50);
+  inp.position(50,
+               (windowHeight +
+                chatBubbles.length*120)
+               - 400);
+  inp.size(windowWidth - 250);
+    sendBtn.position(windowWidth - 150,
+               (windowHeight + 
+                chatBubbles.length*120)
+                - 405);
+  navigateBtn.position(windowWidth - 150,
+               (windowHeight +
+                chatBubbles.length*120)
+                - 350);
+  navigateTextBtn.position(windowWidth - 150,
+               (windowHeight +
+                chatBubbles.length*120)
+                - 350);
+  speachBtn.position(windowWidth - 150,
+               (windowHeight +
+                chatBubbles.length*120)
+                - 400);
+  listenBtn.position(windowWidth - 150,
+               (windowHeight +
+                chatBubbles.length*120)
+                - 400);
+  talkBtn.position(windowWidth - 150,
+               (windowHeight +
+                chatBubbles.length*120)
+                - 300);
+}
+
+//wraping text when exceeds the chat bubble
+function wrapText(text, maxWidth, fontSize) 
+{
+    let words = text.split(' ');
+    let lines = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) 
+    {
+        let word = words[i];
+        let testLine = currentLine + ' ' + word;
+        let testWidth = textWidth(testLine);
+        
+        if (testWidth <= maxWidth) 
+        {
+            currentLine = testLine;
+        } 
+        else 
+        {
+            lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    
+    lines.push(currentLine);
+    return lines;
+}
+
+function draw() 
+{
     windowResized();
-    image (logo, (windowWidth / 2)-200, -100, 400, 400);
-    if(mode == 0 ){ 
+    image(logo, (windowWidth / 2) - 200, -100, 400, 400);
+    
+    if (mode == 0) 
+    {
         inp.show();
         sendBtn.show();
         navigateBtn.show();
-        
+
         speachBtn.hide();
+        listenBtn.hide();
         talkBtn.hide();
         navigateTextBtn.hide();
-        
-        
-//        speechRec.pause();
-        
-    }
-    else if(mode == 1){
+    } 
+    else if (mode == 1) 
+    {
         inp.hide();
-        sendBtn.hide(); 
+        sendBtn.hide();
         navigateBtn.hide();
-        
+
         speachBtn.show();
         talkBtn.show();
         navigateTextBtn.show();
+        listenBtn.show();
+    }
+    if (mode==1 && modeListen == 0) 
+    {
+        speachBtn.show();
+        listenBtn.hide();
+    } 
+    else if (mode==1 && modeListen == 1) 
+    {
+        speachBtn.hide();
+        listenBtn.show();
+    }
+
+  // Draw chat bubbles
+    let bubbleX = width / 2;
+    let bubbleY = 250;
+    for (let i = 0; i < chatBubbles.length; i++) {
+    let chatBubble = chatBubbles[i];
+      
+  // Draw question bubble
+        if (textWidth(chatBubble.question)>=windowWidth-90)
+        {
+            fill(255, 125, 0);
+            rectMode(CENTER);
+            rect(bubbleX, bubbleY - 35 + 120 * i, windowWidth - 50, 70, 20);
+        }
+        else 
+        {
+            fill(255, 125, 0);
+            rectMode(CENTER);
+            rect(bubbleX, bubbleY - 35 + 120 * i, windowWidth - 50, 50, 20); 
+        }
         
-        if (speechRec.resultValue) {
-            let said = speechRec.resultString;
-            HumanText = said;
-            // display user input
-            console.log(said);
-    
+
+  // Draw answer bubble
+        if (textWidth(chatBubble.answer)>=windowWidth- 90)
+        {
+            fill("white");
+            rect(bubbleX, bubbleY + 25 + 120 * i, windowWidth - 50, 70, 20);  
+        }
+        else
+        {
+            fill("white");
+            rect(bubbleX, bubbleY + 25 + 120 * i, windowWidth - 50, 50, 20); 
+        }
+        
+
+  // Draw question text
+        textSize(15);
+        textAlign(LEFT);
+        fill("black");
+        let questionLines = wrapText("You: " + chatBubble.question, windowWidth - 90, 15);
+        for (let j = 0; j < questionLines.length; j++) 
+        {
+            text(questionLines[j], (width / 15), bubbleY - 32 + 120 * i + j * 18);
         }
 
-        
+  // Draw answer text
+        strokeWeight(1);
+        stroke(20);
+        let answerLines = wrapText("ExploreBot: " + chatBubble.answer, windowWidth - 90, 15);
+        for (let j = 0; j < answerLines.length; j++) 
+        {
+            text(answerLines[j], (width / 15), bubbleY + 30 + 120 * i + j * 18);
+        }
     }
-    
-    
-    //draw an empty textbox
-    let rectX = width / 2;
-    let rectY = 350;
-    fill(255,125,0);
-    rectMode(CENTER);
-    rect(rectX, rectY-100, windowWidth - 50, 50, 20);
-    fill("white");
-    rect(rectX, rectY-25, windowWidth - 50, 50, 20);
-    
-    //Human Text
-    textSize(15);
-    textAlign(LEFT);
-    fill("black");
-    if(HumanText == undefined)
-        HumanText = "";
-    
-    text(" You: "+HumanText,(width/15),rectY-100); //draw Human Text within a box
-    
-    
-    if(BotText == undefined)
-        BotText = "";
-//    else if(HumanText.includes("hello"))
-//        BotText = "Hello There!";
-//    else if(HumanText.includes("good morning"))
-//        BotText = "Good Morning Sir!";
-    
-    //draw Bot text inside the box
-    let padding = 20;
-    textSize(15);
-    textAlign(RIGHT);
-    strokeWeight(1);
-    stroke(20);
-    text(BotText+" : ExploreBot ", rectX - padding, rectY + (3*padding), windowWidth - 75, 190); //draw Bot Text within a box
-    
-    
-
-  //gotSpeech();
 }

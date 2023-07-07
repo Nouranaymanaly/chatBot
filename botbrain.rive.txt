@@ -1,6 +1,6 @@
 ! version = 2.0
 
-//substitutions
+// Substitutions
 ! sub i'm     = i am
 ! sub i'd     = i would
 ! sub i've    = i have
@@ -21,133 +21,85 @@
 ! sub favourite = favorite
 ! sub colour = color
 
+// Greetings
++ [*](hey|hi|hello|how are you|what's up|good morning|good day|nihao)[*]
+- Hi! Is there a specific area in mind? Cairo for example
+- Hello! Is there a certain activity you would like to do?
 
-//greetings
-+ [*](hey|hi|hello|howdy|yo|how are you|what's up|good morning|good day|nihao)[*]
-- Hey! What's your name?
-- What's up? How's it going?
-- Hello! How are you?
-
-//welcoming
-+ my name is *
-- How's it going <star1>?
-
-//randoms
-+ who are you
-- It doesn't matter who am I. All you need to know is that I am here to listen.
-
-//defaults
-+ *
-- Sure
-- mmmhmmm
-- I understand.
-- What you are feeling is valid.
-- Go on.
-- I'm listening
-- Tell me more!
-- I hear you 100%
-- I am right there with you, boo.
-- I totally get that.
-- Can you try to be more specific?
-- What do you mean by that?
-- Why do you think that is?
-- And how do you feel about that?
-
-
-//scopes
-+ *feel*
-- It's good to hear that you are talking about your feelings, you should do this more often!
-- Tell me more! Doesn't it ~feel~ nice to talk about how you feel?
-- That's right, let's keep working on paying attention to how you feel.
-- See, it's not that hard to tune in to your own emotions!
-- I am so glad you get to share how you feel.
-- Thank you for sharing.
-
-
-//out of order
-+ my favorite color is teal
-- Surprise! 
-
-//complex
-+ [my] [*]favorite color[*] [is] *
-- Surprise! <star1>
-
-
-//Weights if their totals is 46 times to be answer until it repeat itself, then the first one will be repeated 20 times, second one 25 times, third one only 1 time each 46.
+// Weights if their total is 46 times to be answered until it repeats itself, then the first one will be repeated 20 times, second one 25 times, third one only one time each 46.
 + greetings
-- Hi there!{weight=20}
-- Hello!{weight=25}
-- nyet!
+- Hi there! {weight=20}
+- Hello! {weight=25}
+- Hey!
 
-//Line Breaking "How to make a reply on seperate lines"
-+ tell me a poem
-- Little Miss Muffit sat on her tuffet,\n
-^ In a nonchalant sort of way.\n
-^ With her forcefield around her,\n
-^ The Spider, the bounder,\n
-^ Is not in the picture today.
-
-
-//Match mutiple cases
-+ where is *
-- Where it belongs.
-- Where you left it.
-- Where the heart is.
-
-//using user inputs
+// Welcoming
 + my name is *
+- How's it going, <star1>?
 - Nice to meet you, <star1>!
 
-+ * told me to say *
-- Why would <star1> tell you to say "<star2>"?
-- Did you say "<star2>" after <star1> told you to?
+// Randoms
++ who are you
+- I'm ExploreBot, and I'm here to aid you with finding the most convenient place to visit in Egypt according to your wishes. Ask me a question such as "I would like to search for a place to visit" to begin.
 
-+ i am * years old
-- A lot of people are <star1> years old.
+// Defaults
++ *
+- We apologize, We don't have enough data to help you. Please choose something else or be more specific.
++[*](where|suggest|suggestion|suggestions|recommend)[*]
+-we can start with your choosing preferred location: Giza / Cairo / New Capital
 
-//oring
-+ what is your (home|office|cell) number
-- You can reach me at: 1 (800) 555-1234.
+// + [*] (giza|food|restaurant|eat) [*] (giza|food|restaurant|eat) [*] (food|giza|restaurant|eat) [*]
+// - Koshari El Tahrir
+// + [*] (cairo|food|restaurant|eat) [*] (cairo|food|restaurant|eat)[*] (food|cairo|restaurant|eat) [*]
+// -
+// + [*] (new capital|food|restaurant|eat) [*] (food|new capital|restaurant|eat) [*]
+// -
 
-//looking for specific keywords
-+ [*] the machine [*]
-- How do you know about the machine!?
+// Scopes
++ [*] (sad|upset|anxious|enraged|anger|angry|bored) [*]
+- Visiting a new place and getting some fresh air might help! 
 
+// FOR OUR PROJECT
+// Asking for location
++[*] (place|visit|outing|go out)[*]
+- Choose the preferred location: Giza / Cairo / New Capital.
 
-//filters
-+ f***
-- You can't f*** me, I'm just an AI trying to get you talk about your feelings!
-- hmm...let's talk about how you're feeling......
-- aaaand how do you feel about that?
-- Should we start with a "hello"?
-- Try to start a sentence with "I feel". It's not that hard.
-- Great energy, let's channel that to your mindfulness.
++ [*] (giza|cairo|new capital) [*]
+- <set location = <star>> What type of activity would you like to do?
 
-//for our project
-//choosing area
-+[*] (giza|cairo|new capital) [*]
--What type of activity would you like to do?\n
-^- Food \n
-^- Entertainment \n
-^- Attractions \n
-^- Other\n
-//food options
-+[*] food [*]
--Which of the following cuisines are you craving? \n
-^- Egyptian \n
-^- American \n
-^- Italian \n
-^- Asian \n
-//entertainment options
-+[*] entertainment [*]
--What type of entertainment would you prefer from the following: \n
-^- Cinema \n
-^- Games \n
-^- Adernaline Boosters \n
-//attractions options
-+[*] attractions [*]
--Would you prefer visiting Historical attractions or Modern attraction?
-//if they chose other
-+ [*] Other [*]
-- We apologize, We don't have enough data to help you. Please pick another activity.
+// your selected location is <get location>.
+
+// Food options
++[*] (food|eat|eating|restaurant) [*]
+- Which cuisine are you craving? 
++ [*] (egyptian|american|italian|asian) [*] 
+- <set cuisine = <star>> You wish to dine at an<get cuisine> restaurant in<get location>, correct?
+
++[*]yes[*]
+* <get cuisine> == egyptian => Koshari El Tahrir.
+* <get cuisine> == american => Longhorn.
+* <get cuisine> == italian => O's Pasta.
+* <get cuisine> == asian => Asian Corner.
+
++ no
+- Please enter the information again.
+
++[*]sushi[*]
+-garnell and mori sushi are the best sushi in town!
+
+// * <star> == egyptian => Koshari El Tahrir <set cuisine=<star>>
+// * <star> == american => Longhorn <set cuisine=<star>>
+// * <star> == italian => O's Pasta <set cuisine=<star>>
+// * <star> == asian => Asian Corner <set cuisine=<star>>
+
+// Entertainment options
++[*] (entertainment|fun|movies) [*]
+- Is there a more specific type of entertainment?
++[*] (cinema|games|adrenaline boosters) [*]
+- <set entertainment = <star>> You wish to go to a<get entertainment> in<get location>, correct?
+
+// Attractions options
++[*](attractions|history|museum)[*]
+- Would you prefer visiting historical attractions or modern attractions?
++ [*] (historical|modern) [*]
+- <set attraction = <star>> You wish to visit<get attraction> in<get location>, correct?
 
