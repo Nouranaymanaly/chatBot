@@ -34,7 +34,7 @@ function setup()
     inp.input(HumanInputEvent);
 
     // Draw button to submit questions
-    sendBtn = createButton('Send text');
+    sendBtn = createButton('Send');
     sendBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 400);
     sendBtn.size(100);
     sendBtn.mousePressed(submitQuestion);
@@ -55,8 +55,8 @@ function setup()
     navigateTextBtn.addClass('btn btn-dark');
 
     // Speak button to get response (stops listening when clicked)
-    speachBtn = createButton('Send');
-    speachBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 400);
+    speachBtn = createButton('Stop listening');
+    speachBtn.position(width - 150, ( windowHeight +chatBubbles.length*120) - 425);
     speachBtn.size(100);
     speachBtn.mousePressed(gotSpeech);
     speachBtn.mousePressed(navigateListen)
@@ -207,7 +207,7 @@ function windowResized() {
   speachBtn.position(windowWidth - 150,
                (windowHeight +
                 chatBubbles.length*120)
-                - 400);
+                - 425);
   listenBtn.position(windowWidth - 150,
                (windowHeight +
                 chatBubbles.length*120)
@@ -296,45 +296,61 @@ function draw()
             fill(255, 125, 0);
             rectMode(CENTER);
             rect(bubbleX, bubbleY - 35 + 120 * i, windowWidth - 50, 70, 20);
+            // Draw question text
+            textSize(15);
+            textAlign(LEFT);
+            fill("black");
+            let questionLines = wrapText("You: " + chatBubble.question, windowWidth - 90, 15);
+            for (let j = 0; j < questionLines.length; j++) 
+            {
+                text(questionLines[j], (width / 15), bubbleY - 37 + 120 * i + j * 18);
+            }
         }
         else 
         {
             fill(255, 125, 0);
             rectMode(CENTER);
             rect(bubbleX, bubbleY - 35 + 120 * i, windowWidth - 50, 50, 20); 
+            // Draw question text
+            textSize(15);
+            textAlign(LEFT);
+            fill("black");
+            let questionLines = wrapText("You: " + chatBubble.question, windowWidth - 90, 15);
+            for (let j = 0; j < questionLines.length; j++) 
+            {
+                text(questionLines[j], (width / 15), bubbleY - 32 + 120 * i + j * 18);
+            }
         }
         
 
   // Draw answer bubble
-        if (textWidth(chatBubble.answer)>=windowWidth- 90)
+        if (textWidth(chatBubble.answer)>=windowWidth- 160)
         {
             fill("white");
             rect(bubbleX, bubbleY + 25 + 120 * i, windowWidth - 50, 70, 20);  
-        }
+            // Draw answer text
+            textSize(15);
+            textAlign(LEFT);
+            fill("black");
+            let answerLines = wrapText("ExploreBot: " + chatBubble.answer, windowWidth - 90, 15);
+            for (let j = 0; j < answerLines.length; j++) 
+            {
+                text(answerLines[j], (width / 15), bubbleY + 22 + 120 * i + j * 18);
+            }
+            }
         else
         {
             fill("white");
             rect(bubbleX, bubbleY + 25 + 120 * i, windowWidth - 50, 50, 20); 
-        }
-        
-
-  // Draw question text
-        textSize(15);
-        textAlign(LEFT);
-        fill("black");
-        let questionLines = wrapText("You: " + chatBubble.question, windowWidth - 90, 15);
-        for (let j = 0; j < questionLines.length; j++) 
-        {
-            text(questionLines[j], (width / 15), bubbleY - 32 + 120 * i + j * 18);
-        }
-
-  // Draw answer text
-        strokeWeight(1);
-        stroke(20);
-        let answerLines = wrapText("ExploreBot: " + chatBubble.answer, windowWidth - 90, 15);
-        for (let j = 0; j < answerLines.length; j++) 
-        {
-            text(answerLines[j], (width / 15), bubbleY + 30 + 120 * i + j * 18);
+            // Draw answer text
+            textSize(15);
+            textAlign(LEFT);
+            fill("black");
+            let answerLines = wrapText("ExploreBot: " + chatBubble.answer, windowWidth - 80, 15);
+            for (let j = 0; j < answerLines.length; j++) 
+            {
+                text(answerLines[j], (width / 15), bubbleY + 30 + 120 * i + j * 18);
+            }
         }
     }
 }
